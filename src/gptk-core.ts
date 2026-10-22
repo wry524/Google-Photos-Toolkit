@@ -33,17 +33,17 @@ export default class Core {
       unLock: async (p) => this.apiUtils.removeFromLockedFolder(p.mediaItems),
       lock: async (p) => this.apiUtils.moveToLockedFolder(p.mediaItems),
       toExistingAlbum: async (p) => {
-        if (!p.targetAlbum) throw new Error('No target album specified');
+        if (!p.targetAlbum) throw new Error('未指定目标相册');
         await this.apiUtils.addToExistingAlbum(p.mediaItems, p.targetAlbum, p.preserveOrder);
       },
       toNewAlbum: async (p) => {
-        if (!p.newTargetAlbumName) throw new Error('No album name specified');
+        if (!p.newTargetAlbumName) throw new Error('未输入相册名称');
         await this.apiUtils.addToNewAlbum(p.mediaItems, p.newTargetAlbumName, p.preserveOrder);
       },
       toTrash: async (p) => this.apiUtils.moveToTrash(p.mediaItems),
       removeFromAlbum: async (p) => {
         if (p.source !== 'albums') {
-          throw new Error('Remove from album requires the Albums source');
+          throw new Error('从相册移除内容时，来源必须选择“相册”');
         }
         await this.apiUtils.removeFromAlbum(p.mediaItems);
       },
@@ -59,7 +59,7 @@ export default class Core {
 
   async getAndFilterMedia(filter: Filter, source: Source): Promise<MediaItem[]> {
     const mediaItems = await this.fetchMediaItems(source, filter);
-    log(`Found items: ${mediaItems.length}`);
+    log(`已找到项目：${mediaItems.length}`);
     if (!this.isProcessRunning || !mediaItems?.length) return mediaItems;
 
     const filteredItems = await this.applyFilters(mediaItems, filter, source);
@@ -69,38 +69,38 @@ export default class Core {
   async fetchMediaItems(source: Source, filter: Filter): Promise<MediaItem[]> {
     const sourceHandlers: Record<Source, () => Promise<MediaItem[]>> = {
       library: async () => {
-        log('Reading library');
+        log('正在读取照片库');
         return filter.dateType === 'uploaded'
           ? await this.getLibraryItemsByUploadDate(filter)
           : await this.getLibraryItemsByTakenDate(filter);
       },
       search: async () => {
-        log('Reading search results');
+        log('正在读取搜索结果');
         return await this.apiUtils.getAllSearchItems(filter.searchQuery ?? '');
       },
       trash: async () => {
-        log('Getting trash items');
+        log('正在获取回收站内容');
         return await this.apiUtils.getAllTrashItems();
       },
       lockedFolder: async () => {
-        log('Getting locked folder items');
+        log('正在获取加锁文件夹内容');
         return await this.apiUtils.getAllLockedFolderItems();
       },
       favorites: async () => {
-        log('Getting favorite items');
+        log('正在获取收藏内容');
         return await this.apiUtils.getAllFavoriteItems();
       },
       sharedLinks: async () => {
-        log('Getting shared links');
+        log('正在获取共享链接');
         const sharedLinks = await this.apiUtils.getAllSharedLinks();
         if (!sharedLinks || sharedLinks.length === 0) {
-          log('No shared links found', 'error');
+          log('未找到共享链接', 'error');
           return [];
         }
-        log(`Shared Links Found: ${sharedLinks.length}`);
+        log(`找到共享链接：${sharedLinks.length}`);
         const sharedLinkItems = await Promise.all(
           sharedLinks.map(async (sharedLink) => {
-            log('Getting shared link items');
+            log('正在获取共享链接内容');
             return await this.apiUtils.getAllMediaInSharedLink(sharedLink.linkId);
           })
         );
@@ -108,7 +108,7 @@ export default class Core {
       },
       albums: async () => {
         if (!filter.albumsInclude) {
-          log('No target album!', 'error');
+          log('未选择目标相册！', 'error');
           throw new Error('no target album');
         }
         const albumMediaKeys = Array.isArray(filter.albumsInclude) ? filter.albumsInclude : [filter.albumsInclude];
@@ -126,7 +126,7 @@ export default class Core {
         }
         const albumItems = await Promise.all(
           albumMediaKeys.map(async (albumMediaKey) => {
-            log('Getting album items');
+            log('正在获取相册内容');
             const { title: albumTitle, items } = await this.apiUtils.getAllMediaInAlbumWithContext(albumMediaKey);
             return items.map((item) => ({
               ...item,
@@ -142,12 +142,12 @@ export default class Core {
 
     const handler = sourceHandlers[source];
     if (!handler) {
-      log(`Unknown source: ${source}`, 'error');
+      log(`未知来源：${source}`, 'error');
       return [];
     }
 
     const mediaItems = await handler();
-    log('Source read complete');
+    log('来源读取完成');
     return mediaItems;
   }
 
@@ -248,18 +248,18 @@ export default class Core {
 
     const excludedItemArrays = await Promise.all(
       albumMediaKeys.map(async (albumMediaKey) => {
-        log('Getting album items to exclude');
+        log('正在获取需要排除的相册内容');
         return await this.apiUtils.getAllMediaInAlbum(albumMediaKey);
       })
     );
 
-    log('Excluding album items');
+    log('正在排除相册内容');
     const excludeKeys = new Set(excludedItemArrays.flat().map((item) => item.dedupKey));
     return mediaItems.filter((mediaItem) => !excludeKeys.has(mediaItem.dedupKey));
   }
 
   async excludeSharedItems(mediaItems: MediaItem[]): Promise<MediaItem[]> {
-    log('Getting shared links items to exclude');
+    log('正在获取需要排除的共享链接内容');
     const sharedLinks = await this.apiUtils.getAllSharedLinks();
 
     const excludedItemArrays = await Promise.all(
@@ -268,7 +268,7 @@ export default class Core {
       })
     );
 
-    log('Excluding shared items');
+    log('正在排除共享内容');
     const excludeKeys = new Set(excludedItemArrays.flat().map((item) => item.dedupKey));
     return mediaItems.filter((mediaItem) => !excludeKeys.has(mediaItem.dedupKey));
   }
@@ -308,12 +308,12 @@ export default class Core {
         if (!this.isProcessRunning) return mediaItems;
         const mediaPage: LibraryTimelinePage = await this.api.getItemsByTakenDate(nextPageTimestamp, source ?? null, nextPageId);
         nextPageId = mediaPage?.nextPageId ?? null;
-        if (!mediaPage) { log('Empty page response, skipping', 'error'); continue; }
+        if (!mediaPage) { log('页面响应为空，已跳过', 'error'); continue; }
         nextPageTimestamp = mediaPage.lastItemTimestamp - 1;
         if (!mediaPage.items || mediaPage.items.length === 0) continue;
         mediaPage.items = mediaPage.items.filter((item) => item.timestamp >= lowerBoundaryDate && item.timestamp <= higherBoundaryDate);
         if (!mediaPage.items || mediaPage.items.length === 0) continue;
-        log(`Found ${mediaPage.items.length} items`);
+        log(`找到 ${mediaPage.items.length} 个项目`);
         mediaItems.push(...mediaPage.items);
       } while ((nextPageId && !nextPageTimestamp) || (nextPageTimestamp && nextPageTimestamp > lowerBoundaryDate));
     } else if ((Number.isInteger(lowerBoundaryDate) || Number.isInteger(higherBoundaryDate)) && filter.intervalType === 'exclude') {
@@ -322,7 +322,7 @@ export default class Core {
         if (!this.isProcessRunning) return mediaItems;
         const mediaPage: LibraryTimelinePage = await this.api.getItemsByTakenDate(nextPageTimestamp, source ?? null, nextPageId);
         nextPageId = mediaPage?.nextPageId ?? null;
-        if (!mediaPage) { log('Empty page response, skipping', 'error'); continue; }
+        if (!mediaPage) { log('页面响应为空，已跳过', 'error'); continue; }
         nextPageTimestamp = mediaPage.lastItemTimestamp - 1;
         if (!mediaPage.items || mediaPage.items.length === 0) continue;
         mediaPage.items = mediaPage.items.filter((item) => item.timestamp < lowerBoundaryDate || item.timestamp > higherBoundaryDate);
@@ -335,7 +335,7 @@ export default class Core {
 
         if (!mediaPage.items || mediaPage.items.length === 0) continue;
 
-        log(`Found ${mediaPage.items.length} items`);
+        log(`找到 ${mediaPage.items.length} 个项目`);
         mediaItems.push(...mediaPage.items);
       } while (nextPageId);
     } else {
@@ -344,10 +344,10 @@ export default class Core {
         if (!this.isProcessRunning) return mediaItems;
         const mediaPage: LibraryTimelinePage = await this.api.getItemsByTakenDate(nextPageTimestamp, source ?? null, nextPageId);
         nextPageId = mediaPage?.nextPageId ?? null;
-        if (!mediaPage) { log('Empty page response, skipping', 'error'); continue; }
+        if (!mediaPage) { log('页面响应为空，已跳过', 'error'); continue; }
         nextPageTimestamp = mediaPage.lastItemTimestamp - 1;
         if (!mediaPage.items || mediaPage.items.length === 0) continue;
-        log(`Found ${mediaPage.items.length} items`);
+        log(`找到 ${mediaPage.items.length} 个项目`);
         mediaItems.push(...mediaPage.items);
       } while (nextPageId);
     }
@@ -371,7 +371,7 @@ export default class Core {
       if (!this.isProcessRunning) return mediaItems;
       const mediaPage = await this.api.getItemsByUploadedDate(nextPageId);
       nextPageId = mediaPage?.nextPageId ?? null;
-      if (!mediaPage) { log('Empty page response, skipping', 'error'); continue; }
+      if (!mediaPage) { log('页面响应为空，已跳过', 'error'); continue; }
       if (!mediaPage.items || mediaPage.items.length === 0) continue;
       const lastTimeStamp = mediaPage.items[mediaPage.items.length - 1].creationTimestamp;
       let filteredPageItems = mediaPage.items;
@@ -386,7 +386,7 @@ export default class Core {
         );
       }
       if (!filteredPageItems || filteredPageItems.length === 0) continue;
-      log(`Found ${filteredPageItems.length} items`);
+      log(`找到 ${filteredPageItems.length} 个项目`);
       mediaItems.push(...filteredPageItems);
     } while (nextPageId && !skipTheRest);
 
@@ -465,7 +465,7 @@ export default class Core {
       const mediaItems = await this.getAndFilterMedia(filter, source);
 
       if (!mediaItems?.length) {
-        log('No items to process');
+        log('没有需要处理的内容');
         return;
       }
 
@@ -479,16 +479,16 @@ export default class Core {
         preserveOrder: Boolean(filter.similarityThreshold ?? filter.sortBySize),
       });
 
-      log(`Task completed in ${timeToHHMMSS(new Date().getTime() - startTime.getTime())}`, 'success');
+      log(`操作完成，耗时 ${timeToHHMMSS(new Date().getTime() - startTime.getTime())}`, 'success');
     } catch (error) {
-      log((error instanceof Error ? error.stack : String(error)) ?? 'Unknown error', 'error');
+      log((error instanceof Error ? error.stack : String(error)) ?? '未知错误', 'error');
     } finally {
       this.isProcessRunning = false;
     }
   }
 
   async executeAction(action: Action, params: ExecuteActionParams): Promise<void> {
-    log(`Items to process: ${params.mediaItems.length}`);
+    log(`待处理项目数：${params.mediaItems.length}`);
 
     let actionId = action.elementId;
     if (actionId === 'restoreTrash' || params.source === 'trash') actionId = 'restoreTrash';
@@ -498,7 +498,7 @@ export default class Core {
     if (handler) {
       await handler(params);
     } else {
-      log(`Unknown action: ${actionId}`, 'error');
+      log(`未知操作：${actionId}`, 'error');
     }
   }
 }
