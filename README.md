@@ -20,7 +20,7 @@ In your browser, utilizing GP's undocumented web api
 
 1. Install [Tampermonkey](https://www.tampermonkey.net/) userscript manager for your browser
    - If you're on Android, try [Firefox](https://www.mozilla.org/firefox/browsers/mobile/android/), it supports Tampermonkey
-2. Click [Install](https://github.com/xob0t/Google-Photos-Toolkit/releases/latest/download/google_photos_toolkit.user.js)
+2. Click [Install](https://raw.githubusercontent.com/wry524/Google-Photos-Toolkit/main/google_photos_toolkit.user.js)
 3. Accept installation
 
 ### Finding space-consuming media
