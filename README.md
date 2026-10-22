@@ -1,5 +1,13 @@
 # Google Photos Toolkit
 
+## 简体中文版
+
+此分支已将工具界面、筛选摘要、操作确认框和日志提示翻译为简体中文。
+
+**安装：**先在浏览器中安装 Tampermonkey，再打开 [中文版用户脚本](https://raw.githubusercontent.com/wry524/Google-Photos-Toolkit/main/google_photos_toolkit.user.js) 并确认安装。随后访问 [Google 相册](https://photos.google.com/)，点击工具栏中的 GPTK 按钮。
+
+项目基于 [xob0t/Google-Photos-Toolkit](https://github.com/xob0t/Google-Photos-Toolkit)；原项目说明见下文。
+
 Bulk organize your media
 
 ![demo](media/demo.png)
