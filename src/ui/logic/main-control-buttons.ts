@@ -19,6 +19,6 @@ function clearLog(): void {
 }
 
 function stopProcess(): void {
-  log('Stopping the process');
+  log('正在停止操作');
   core.isProcessRunning = false;
 }

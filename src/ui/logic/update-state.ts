@@ -23,7 +23,7 @@ export function updateUI(): void {
       const description = generateFilterDescription(getFormData('.filters-form'));
       previewElement.textContent = description;
     } catch {
-      previewElement.textContent = 'Failed to generate description';
+      previewElement.textContent = '无法生成筛选描述';
     }
   }
 
@@ -37,7 +37,7 @@ export function updateUI(): void {
     if (lockedFolderTab && !window.location.href.includes('lockedfolder')) {
       lockedFolderTab.disabled = true;
       if (lockedFolderTab.parentNode instanceof HTMLElement) {
-        lockedFolderTab.parentNode.title = 'To process items in the locked folder, you must open GPTK while in it';
+        lockedFolderTab.parentNode.title = '如需处理加锁文件夹中的内容，请先进入该文件夹再打开 GPTK';
       }
     }
   }
@@ -66,8 +66,8 @@ export function updateUI(): void {
       removeFromAlbumBtn.classList.toggle('not-applicable', !albumsActive);
       removeFromAlbumBtn.setAttribute('aria-disabled', String(!albumsActive));
       removeFromAlbumBtn.title = albumsActive
-        ? 'Remove items from their album'
-        : 'Source must be Albums to remove items from an album';
+        ? '从相册中移除内容'
+        : '从相册移除内容时，来源必须选择“相册”';
     }
   }
 

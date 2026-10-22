@@ -26,20 +26,20 @@ const actions: Action[] = [
 ];
 
 const destructiveActions: Record<string, string> = {
-  setDateFromFilename: 'WARNING: This will overwrite the original photo dates. This action cannot be undone!',
+  setDateFromFilename: '警告：此操作会覆盖原始照片日期，且无法撤销！',
 };
 
 function userConfirmation(action: Action, filter: Filter): boolean {
   function generateWarning(action: Action, filter: Filter): string {
     const filterDescription = generateFilterDescription(filter);
     const sourceLabel = document.querySelector('input[name="source"]:checked+label');
-    const sourceHuman = sourceLabel?.textContent?.trim() ?? 'Unknown';
+    const sourceHuman = sourceLabel?.textContent?.trim() ?? '未知';
     const actionElement = document.getElementById(action.elementId);
     const warning: string[] = [];
-    warning.push(`Account: ${windowGlobalData.account}`);
-    warning.push(`\nSource: ${sourceHuman}`);
+    warning.push(`账号：${windowGlobalData.account}`);
+    warning.push(`\n来源：${sourceHuman}`);
     warning.push(`\n${filterDescription}`);
-    warning.push(`\nAction: ${actionElement?.title ?? action.elementId}`);
+    warning.push(`\n操作：${actionElement?.title ?? action.elementId}`);
 
     const destructiveWarning = destructiveActions[action.elementId];
     if (destructiveWarning) {
@@ -49,7 +49,7 @@ function userConfirmation(action: Action, filter: Filter): boolean {
     return warning.join(' ');
   }
   const warning = generateWarning(action, filter);
-  return window.confirm(`${warning}\nProceed?`);
+  return window.confirm(`${warning}\n确定继续吗？`);
 }
 
 async function runAction(actionId: string): Promise<void> {
@@ -73,7 +73,7 @@ async function runAction(actionId: string): Promise<void> {
   const source = (sourceInput?.id ?? 'library') as Source;
 
   if (actionId === 'removeFromAlbum' && source !== 'albums') {
-    log('Remove from album requires the Albums source', 'error');
+    log('从相册移除内容时，来源必须选择“相册”', 'error');
     return;
   }
 

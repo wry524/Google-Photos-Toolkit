@@ -10,7 +10,7 @@ export function addAlbums(albums: Album[]): void {
     for (const albumSelect of albumSelects) {
       if (!albums?.length) {
         const option = document.createElement('option');
-        option.textContent = 'No Albums';
+        option.textContent = '没有相册';
         option.value = '';
         albumSelect.appendChild(option);
         continue;
@@ -19,7 +19,7 @@ export function addAlbums(albums: Album[]): void {
         if (parseInt(String(album.itemCount ?? 0)) === 0 && !addEmpty) continue;
         const option = document.createElement('option');
         option.value = album.mediaKey;
-        option.title = `Name: ${album.title}\nItems: ${album.itemCount}`;
+        option.title = `名称：${album.title}\n项目数：${album.itemCount}`;
         option.textContent = album.title ?? '';
         if (album.isShared) option.classList.add('shared');
         albumSelect.appendChild(option);
@@ -45,7 +45,7 @@ export function addAlbums(albums: Album[]): void {
   for (const select of albumSelectsSingle) {
     const option = document.createElement('option');
     option.value = '';
-    option.textContent = 'Select Album';
+    option.textContent = '选择相册';
     select.appendChild(option);
   }
 

@@ -9,13 +9,13 @@ function parseNumber(value?: string): number {
 }
 
 function formatDate(value?: string): string | null {
-  return value ? new Date(value).toLocaleString('en-GB') : null;
+  return value ? new Date(value).toLocaleString('zh-CN') : null;
 }
 
 function pluralAlbums(keys: string | string[], noun: string): string {
   return Array.isArray(keys)
-    ? `in the ${keys.length} ${noun} albums`
-    : `in the ${noun} album`;
+    ? `位于 ${keys.length} 个${noun}相册中`
+    : `位于${noun}相册中`;
 }
 
 interface DescriptionRule {
@@ -24,73 +24,73 @@ interface DescriptionRule {
 }
 
 const rules: DescriptionRule[] = [
-  { test: (f) => f.owned === 'true',   describe: () => 'owned' },
-  { test: (f) => f.owned === 'false',  describe: () => 'not owned' },
+  { test: (f) => f.owned === 'true',   describe: () => '本人所有' },
+  { test: (f) => f.owned === 'false',  describe: () => '非本人所有' },
 
-  { test: (f) => f.space === 'consuming',      describe: () => 'space consuming' },
-  { test: (f) => f.space === 'non-consuming',   describe: () => 'non-space consuming' },
+  { test: (f) => f.space === 'consuming',      describe: () => '占用存储空间' },
+  { test: (f) => f.space === 'non-consuming',   describe: () => '不占用存储空间' },
 
-  { test: (f) => f.uploadStatus === 'full',     describe: () => 'fully uploaded' },
-  { test: (f) => f.uploadStatus === 'partial',  describe: () => 'partially uploaded' },
+  { test: (f) => f.uploadStatus === 'full',     describe: () => '完整上传' },
+  { test: (f) => f.uploadStatus === 'partial',  describe: () => '部分上传' },
 
-  { test: (f) => f.excludeShared === 'true', describe: () => 'non-shared' },
+  { test: (f) => f.excludeShared === 'true', describe: () => '未共享' },
 
-  { test: (f) => f.favorite === 'true', describe: () => 'favorite' },
+  { test: (f) => f.favorite === 'true', describe: () => '已收藏' },
   {
     test: (f) => f.excludeFavorites === 'true' || f.favorite === 'false',
-    describe: () => 'non-favorite',
+    describe: () => '未收藏',
   },
 
-  { test: (f) => f.quality === 'original',       describe: () => 'original quality' },
-  { test: (f) => f.quality === 'storage-saver',  describe: () => 'storage-saver quality' },
+  { test: (f) => f.quality === 'original',       describe: () => '原始画质' },
+  { test: (f) => f.quality === 'storage-saver',  describe: () => '节省存储空间画质' },
 
-  { test: (f) => f.hasLocation === 'true',  describe: () => 'with location' },
-  { test: (f) => f.hasLocation === 'false', describe: () => 'without location' },
+  { test: (f) => f.hasLocation === 'true',  describe: () => '有位置信息' },
+  { test: (f) => f.hasLocation === 'false', describe: () => '无位置信息' },
 
   {
     test: (f) => Boolean(f.boundSouth && f.boundWest && f.boundNorth && f.boundEast),
-    describe: (f) => `within area S${f.boundSouth} W${f.boundWest} N${f.boundNorth} E${f.boundEast}`,
+    describe: (f) => `位于范围：南纬 ${f.boundSouth}、西经 ${f.boundWest}、北纬 ${f.boundNorth}、东经 ${f.boundEast}`,
   },
 
-  { test: (f) => f.archived === 'true',  describe: () => 'archived' },
-  { test: (f) => f.archived === 'false', describe: () => 'non-archived' },
+  { test: (f) => f.archived === 'true',  describe: () => '已归档' },
+  { test: (f) => f.archived === 'false', describe: () => '未归档' },
 
   {
     test: () => true,
     describe: (f) => {
       const typeMap: Record<string, string> = {
-        video: 'videos',
-        live: 'live photos',
-        image: 'images',
+        video: '视频',
+        live: '动态照片',
+        image: '图片',
       };
-      return typeMap[f.type ?? ''] ?? 'media';
+      return typeMap[f.type ?? ''] ?? '媒体内容';
     },
   },
 
   {
     test: (f) => !!f.searchQuery,
-    describe: (f) => `in search results of query "${f.searchQuery}"`,
+    describe: (f) => `搜索结果： "${f.searchQuery}"`,
   },
 
   {
     test: (f) => !!f.fileNameRegex,
     describe: (f) => {
-      const verb = f.fileNameMatchType === 'exclude' ? 'not matching' : 'matching';
-      return `with filename ${verb} regex "${f.fileNameRegex}"`;
+      const verb = f.fileNameMatchType === 'exclude' ? '不匹配' : '匹配';
+      return `文件名${verb}正则表达式 "${f.fileNameRegex}"`;
     },
   },
 
   {
     test: (f) => !!f.descriptionRegex,
     describe: (f) => {
-      const verb = f.descriptionMatchType === 'exclude' ? 'not matching' : 'matching';
-      return `with description ${verb} regex "${f.descriptionRegex}"`;
+      const verb = f.descriptionMatchType === 'exclude' ? '不匹配' : '匹配';
+      return `描述${verb}正则表达式 "${f.descriptionRegex}"`;
     },
   },
 
   {
     test: (f) => !!f.similarityThreshold,
-    describe: (f) => `with similarity more than "${f.similarityThreshold}"`,
+    describe: (f) => `相似度高于 "${f.similarityThreshold}"`,
   },
 
   {
@@ -101,11 +101,11 @@ const rules: DescriptionRule[] = [
       const maxW = parseSize(f.maxWidth);
       const minH = parseSize(f.minHeight);
       const maxH = parseSize(f.maxHeight);
-      if (minW > 0) parts.push(`width >= ${minW}px`);
-      if (maxW > 0) parts.push(`width <= ${maxW}px`);
-      if (minH > 0) parts.push(`height >= ${minH}px`);
-      if (maxH > 0) parts.push(`height <= ${maxH}px`);
-      return `with resolution ${parts.join(', ')}`;
+      if (minW > 0) parts.push(`宽度 ≥ ${minW}px`);
+      if (maxW > 0) parts.push(`宽度 ≤ ${maxW}px`);
+      if (minH > 0) parts.push(`高度 ≥ ${minH}px`);
+      if (maxH > 0) parts.push(`高度 ≤ ${maxH}px`);
+      return `分辨率： ${parts.join(', ')}`;
     },
   },
 
@@ -115,9 +115,9 @@ const rules: DescriptionRule[] = [
       const minDuration = parseNumber(f.minDuration);
       const maxDuration = parseNumber(f.maxDuration);
       const parts: string[] = [];
-      if (!isNaN(minDuration)) parts.push(`duration >= ${minDuration}s`);
-      if (!isNaN(maxDuration)) parts.push(`duration <= ${maxDuration}s`);
-      return `with ${parts.join(', ')}`;
+      if (!isNaN(minDuration)) parts.push(`时长 ≥ ${minDuration}s`);
+      if (!isNaN(maxDuration)) parts.push(`时长 ≤ ${maxDuration}s`);
+      return parts.join('、');
     },
   },
 
@@ -127,21 +127,21 @@ const rules: DescriptionRule[] = [
       const lo = parseSize(f.lowerBoundarySize);
       const hi = parseSize(f.higherBoundarySize);
       const parts: string[] = [];
-      if (lo > 0) parts.push(`larger than ${lo} bytes`);
-      if (lo > 0 && hi > 0) parts.push('and');
-      if (hi > 0) parts.push(`smaller than ${hi} bytes`);
+      if (lo > 0) parts.push(`大于 ${lo} bytes`);
+      if (lo > 0 && hi > 0) parts.push('且');
+      if (hi > 0) parts.push(`小于 ${hi} bytes`);
       return parts;
     },
   },
 
   {
     test: (f) => !!f.albumsInclude,
-    describe: (f) => pluralAlbums(f.albumsInclude ?? [], 'target'),
+    describe: (f) => pluralAlbums(f.albumsInclude ?? [], '目标'),
   },
 
   {
     test: (f) => !!f.albumsExclude,
-    describe: (f) => ['excluding items', pluralAlbums(f.albumsExclude ?? [], 'selected')],
+    describe: (f) => ['排除内容', pluralAlbums(f.albumsExclude ?? [], '所选')],
   },
 
   {
@@ -151,26 +151,26 @@ const rules: DescriptionRule[] = [
       const hi = formatDate(f.higherBoundaryDate);
       const parts: string[] = [];
 
-      if (f.dateType === 'taken') parts.push('taken');
-      else if (f.dateType === 'uploaded') parts.push('uploaded');
+      if (f.dateType === 'taken') parts.push('拍摄日期');
+      else if (f.dateType === 'uploaded') parts.push('上传日期');
 
       if (lo && hi) {
         parts.push(
           f.intervalType === 'exclude'
-            ? `before ${lo} and after ${hi}`
-            : `from ${lo} to ${hi}`
+            ? `早于 ${lo} 或晚于 ${hi}`
+            : `从 ${lo} 到 ${hi}`
         );
       } else if (lo) {
-        parts.push(f.intervalType === 'exclude' ? `before ${lo}` : `after ${lo}`);
+        parts.push(f.intervalType === 'exclude' ? `早于 ${lo}` : `晚于 ${lo}`);
       } else if (hi) {
-        parts.push(f.intervalType === 'exclude' ? `after ${hi}` : `before ${hi}`);
+        parts.push(f.intervalType === 'exclude' ? `晚于 ${hi}` : `早于 ${hi}`);
       }
 
       return parts;
     },
   },
 
-  { test: (f) => !!f.sortBySize, describe: () => 'sorted by size' },
+  { test: (f) => !!f.sortBySize, describe: () => '按文件大小排序' },
 ];
 
 function validate(filter: Filter): string | null {
@@ -179,13 +179,13 @@ function validate(filter: Filter): string | null {
     filter.higherBoundaryDate &&
     filter.lowerBoundaryDate >= filter.higherBoundaryDate
   ) {
-    return 'Error: Invalid Date Interval';
+    return '错误：日期范围无效';
   }
 
   const lo = parseSize(filter.lowerBoundarySize);
   const hi = parseSize(filter.higherBoundarySize);
   if (lo > 0 && hi > 0 && lo >= hi) {
-    return 'Error: Invalid Size Filter';
+    return '错误：文件大小筛选无效';
   }
 
   const bS = parseFloat(filter.boundSouth ?? '');
@@ -193,34 +193,34 @@ function validate(filter: Filter): string | null {
   const hasSomeBounds = [bS, parseFloat(filter.boundWest ?? ''), bN, parseFloat(filter.boundEast ?? '')].some((v) => !isNaN(v));
   const hasAllBounds = [bS, parseFloat(filter.boundWest ?? ''), bN, parseFloat(filter.boundEast ?? '')].every((v) => !isNaN(v));
   if (hasSomeBounds && !hasAllBounds) {
-    return 'Error: Bounding Box requires all four coordinates';
+    return '错误：地理范围需要填写全部四个坐标';
   }
   if (hasAllBounds && bS >= bN) {
-    return 'Error: South latitude must be less than North latitude';
+    return '错误：南纬度必须小于北纬度';
   }
 
   const minW = parseSize(filter.minWidth);
   const maxW = parseSize(filter.maxWidth);
   if (minW > 0 && maxW > 0 && minW >= maxW) {
-    return 'Error: Invalid Resolution Filter (Width)';
+    return '错误：宽度范围无效';
   }
 
   const minH = parseSize(filter.minHeight);
   const maxH = parseSize(filter.maxHeight);
   if (minH > 0 && maxH > 0 && minH >= maxH) {
-    return 'Error: Invalid Resolution Filter (Height)';
+    return '错误：高度范围无效';
   }
 
   const minDuration = parseNumber(filter.minDuration);
   const maxDuration = parseNumber(filter.maxDuration);
   if (!isNaN(minDuration) && minDuration < 0) {
-    return 'Error: Invalid Duration Filter (Min)';
+    return '错误：最短时长无效';
   }
   if (!isNaN(maxDuration) && maxDuration < 0) {
-    return 'Error: Invalid Duration Filter (Max)';
+    return '错误：最长时长无效';
   }
   if (!isNaN(minDuration) && !isNaN(maxDuration) && minDuration >= maxDuration) {
-    return 'Error: Invalid Duration Filter';
+    return '错误：时长范围无效';
   }
 
   return null;
@@ -230,7 +230,7 @@ export function generateFilterDescription(filter: Filter): string {
   const error = validate(filter);
   if (error) return error;
 
-  const parts: string[] = ['Filter: All'];
+  const parts: string[] = ['筛选：全部'];
 
   for (const rule of rules) {
     if (rule.test(filter)) {
@@ -244,5 +244,5 @@ export function generateFilterDescription(filter: Filter): string {
   }
 
   const result = parts.join(' ');
-  return result === 'Filter: All media' ? 'Filter: None' : result;
+  return result === '筛选：全部 媒体内容' ? '筛选：无' : result;
 }

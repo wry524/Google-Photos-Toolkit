@@ -23,7 +23,7 @@ export default function initUI(): void {
 
   const cachedAlbums = getFromStorage<Album[]>('albums');
   if (cachedAlbums) {
-    log('Cached Albums Restored');
+    log('已恢复缓存的相册');
     addAlbums(cachedAlbums);
   }
 

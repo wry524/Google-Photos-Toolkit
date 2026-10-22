@@ -81,9 +81,9 @@ async function refreshAlbums(): Promise<void> {
     const albums = await apiUtils.getAllAlbums();
     addAlbums(albums);
     saveToStorage('albums', albums);
-    log('Albums Refreshed');
+    log('相册已刷新');
   } catch (e) {
-    log(`Error refreshing albums ${String(e)}`, 'error');
+    log(`刷新相册失败： ${String(e)}`, 'error');
   }
   core.isProcessRunning = false;
   updateUI();

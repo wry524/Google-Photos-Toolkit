@@ -18,7 +18,7 @@ export default function advancedSettingsListenersSetUp(): void {
     event.preventDefault();
     const userInputSettings = getFormData('.settings-form');
     saveToStorage('apiSettings', userInputSettings);
-    log('Api settings saved');
+    log('API 设置已保存');
   }
 
   function restoreApiDefaults(): void {
@@ -29,7 +29,7 @@ export default function advancedSettingsListenersSetUp(): void {
     operationSizeInput.value = String(apiSettingsDefault.operationSize);
     lockedFolderOpSizeInput.value = String(apiSettingsDefault.lockedFolderOpSize);
     infoSizeInput.value = String(apiSettingsDefault.infoSize);
-    log('Default api settings restored');
+    log('已恢复默认 API 设置');
   }
 
   const restoredSettings = getFromStorage<ApiSettings>('apiSettings');
